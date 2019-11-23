@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <title>Pogoda</title>
+
+</head>
+<body>
+    <div class ="container"> 
+            <p class="intro">Sprawdz pogode</p>
+        <div class="middle" style="display:none">
+                <p class="box">Stacja: <br><span id="stacja"></span> 
+                    <br><br>
+                    Temperatura:<br><span id="temp"></span>°C
+                    <br><br>
+                    Cisnienie:<br><span id="cisn"></span>
+                    <br><br>
+                    Stan pogody z dnia:<br><span id="data"></span> o godz.
+                    <span id="godz"></span>:00
+                </p>
+          </div>
+        <form class="search-form">
+                <input type="text" id="inp" class="search" placeholder="Wybierz stację">
+                <ul class="suggestions">
+                  
+                 
+                </ul>
+              </form>
+    </div>
+            
+<script>
+const endpoint = 'https://danepubliczne.imgw.pl/api/data/synop';
+const cities=[];
+fetch(endpoint)
+.then(content=>content.json())
+.then(data=>cities.push(...data));
+
+function findMatches(wordToMatch, cities) { /*znalezienie pasujących sugesti do podanej frazy*/
+    return cities.filter(place =>{
+        const regex= new RegExp(wordToMatch,'gi')
+        return place.stacja.match(regex);
+
+    });
+}
+
+function displayMatches() { /*wyświetlenie sugesti*/
+    const matchArray= findMatches(this.value, cities);
+    const html=matchArray.map(place =>{
+        return `
+        <li class="options"> 
+        <span>${place.stacja}</span>
+        <span>${place.temperatura}°C</span>
+
+        </li>`
+    }).join('');
+    suggestions.innerHTML=html;
+}
+function display(e){
+    test(e);
+    const miejscowosc=e.target.textContent;
+    const x=document.getElementsByClassName("options");
+    console.log(miejscowosc);
+    return cities.map(sa=>{
+        if(sa.stacja==miejscowosc){ /* wyswietlenie tabelki z danymi o pogodzie*/
+             document.querySelector('.middle').style.display="unset";
+             document.getElementById("stacja").innerHTML=sa.stacja;
+             document.getElementById("temp").innerHTML=sa.temperatura;
+             document.getElementById("cisn").innerHTML=sa.cisnienie;
+             document.getElementById("data").innerHTML=sa.data_pomiaru;
+             document.getElementById("godz").innerHTML=sa.godzina_pomiaru;
+             document.getElementById('inp').value=e.target.textContent; /*uzupelnienie inputa wybraną przez nas miejscowością*/
+             for(let i=0; i<x.length;i++){ /*Czyszczenie sugestii*/
+            document.querySelector('.suggestions').children[i].style.display='none';
+              }
+              }
+    });}
+   
+
+const searchInput= document.querySelector('.search');
+const suggestions=document.querySelector('.suggestions');
+searchInput.addEventListener('change',displayMatches);
+searchInput.addEventListener('keyup',displayMatches);
+suggestions.addEventListener('mouseup',display);
+
+function test(event) {
+    
+    cities.map(a=>{
+       return console.log(a.stacja.substr(0,event.currentTarget.textContent.length));
+   })}
+
+
+</script>
+</body>
+
+</html>
