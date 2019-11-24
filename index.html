@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class ="container"> 
-            <p class="intro">Sprawdz pogode</p>
+        <p class="intro">Sprawdz pogode</p>
         <div class="middle" style="display:none">
                 <p class="box">Stacja: <br><span id="stacja"></span> 
                     <br><br>
@@ -24,16 +24,18 @@
                     Stan pogody z dnia:<br><span id="data"></span> o godz.
                     <span id="godz"></span>:00
                 </p>
-          </div>
+        </div>
         <form class="search-form">
                 <input type="text" id="inp" class="search" placeholder="Wybierz stację">
                 <ul class="suggestions">
                   
                  
                 </ul>
-              </form>
+        </form>
+        <button class="hottestDay">Najcieplej</button>
+        <button class="coldestDay">Najzimniej</button>
     </div>
-            
+    
 <script>
 const endpoint = 'https://danepubliczne.imgw.pl/api/data/synop';
 const cities=[];
@@ -62,10 +64,8 @@ function displayMatches() { /*wyświetlenie sugesti*/
     suggestions.innerHTML=html;
 }
 function display(e){
-    test(e);
     const miejscowosc=e.target.textContent;
     const x=document.getElementsByClassName("options");
-    console.log(miejscowosc);
     return cities.map(sa=>{
         if(sa.stacja==miejscowosc){ /* wyswietlenie tabelki z danymi o pogodzie*/
              document.querySelector('.middle').style.display="unset";
@@ -76,7 +76,7 @@ function display(e){
              document.getElementById("godz").innerHTML=sa.godzina_pomiaru;
              document.getElementById('inp').value=e.target.textContent; /*uzupelnienie inputa wybraną przez nas miejscowością*/
              for(let i=0; i<x.length;i++){ /*Czyszczenie sugestii*/
-            document.querySelector('.suggestions').children[i].style.display='none';
+             document.querySelector('.suggestions').children[i].style.display='none';
               }
               }
     });}
@@ -87,14 +87,56 @@ const suggestions=document.querySelector('.suggestions');
 searchInput.addEventListener('change',displayMatches);
 searchInput.addEventListener('keyup',displayMatches);
 suggestions.addEventListener('mouseup',display);
+const najcieplej=document.querySelector('.hottestDay');
+const najzimniej=document.querySelector('.coldestDay');
+najcieplej.addEventListener('click',hottestDay);
+najzimniej.addEventListener('click',coldestDay);
 
-function test(event) {
+function hottestDay(){
+    let max=-55;
+   cities.map(miasta=>{
     
-    cities.map(a=>{
-       return console.log(a.stacja.substr(0,event.currentTarget.textContent.length));
-   })}
+       if(miasta.temperatura>max)
+       {
+           max=miasta.temperatura;
+       } 
+   });
+   cities.map(miasta=>{
+       if (miasta.temperatura==max)
+       { 
+             document.querySelector('.middle').style.display="unset";
+             document.getElementById("stacja").innerHTML=miasta.stacja;
+             document.getElementById("temp").innerHTML=miasta.temperatura;
+             document.getElementById("cisn").innerHTML=miasta.cisnienie;
+             document.getElementById("data").innerHTML=miasta.data_pomiaru;
+             document.getElementById("godz").innerHTML=miasta.godzina_pomiaru;
+             document.getElementById('inp').value=miasta.stacja;
+        }
+   });
+};
 
-
+function coldestDay(){
+    let min=55;
+   cities.map(miasta=>{
+    
+       if(min>miasta.temperatura)
+       {
+           min=Math.min(min,miasta.temperatura);
+       } 
+   });
+   cities.map(miasta=>{
+       if (miasta.temperatura==min)
+       {
+             document.querySelector('.middle').style.display="unset";
+             document.getElementById("stacja").innerHTML=miasta.stacja;
+             document.getElementById("temp").innerHTML=miasta.temperatura;
+             document.getElementById("cisn").innerHTML=miasta.cisnienie;
+             document.getElementById("data").innerHTML=miasta.data_pomiaru;
+             document.getElementById("godz").innerHTML=miasta.godzina_pomiaru;
+             document.getElementById('inp').value=miasta.stacja;
+        }
+   });
+}
 </script>
 </body>
 
